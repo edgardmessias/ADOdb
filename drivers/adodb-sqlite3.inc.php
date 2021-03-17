@@ -600,9 +600,10 @@ class ADODB_sqlite3 extends ADOConnection {
 	/**
 	* SQLite update for blob 
 	*
-	* SQLite must be a fully prepared statement, so where can either
-	* be an array (array params) or a string that we will
-	* do our best to unpack and turn ito a prepared statement
+	* SQLite must be a fully prepared statement (all variables must
+	* be bound), so where can either be an array (array params) 
+	* or a string that we will do our best to unpack and 
+	* turn ito a prepared statement
 	*
 	* @param string $table
 	* @param string $column
@@ -610,7 +611,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	* @param mixed  $where
 	* @param string $blobtype ignored
 	*
-	* @return success 
+	* @return bool success 
 	*/
 	function updateBlob($table,$column,$val,$where,$blobtype='BLOB') 
 	{
@@ -672,9 +673,10 @@ class ADODB_sqlite3 extends ADOConnection {
 					
 			else if(is_object($v))
 				/*
-				* Assume a blob
+				* Assume a blob, this should never appear in
+				* the binding for a where statement anyway
 				*/
-				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_NUM);
+				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_BLOB);
 			else
 				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_TEXT);
 				
@@ -686,7 +688,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		* not ADOdb
 		*/
 		$ok = $stmt->execute();
-		return is_object($ok) ? true : false;
+		return is_object($ok);
 	}
 	
 	/**
@@ -698,7 +700,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	* @param mixed  $where
 	* @param string $blobtype ignored
 	*
-	* @return success 
+	* @return bool success
 	*/
 	function updateBlobFile($table,$column,$val,$where,$blobtype='BLOB')
 	{
