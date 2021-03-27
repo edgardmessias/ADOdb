@@ -622,7 +622,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			// Given a where clause string, we have to disassemble the
 			// statements into keys and values
 			$params = array();
-			$temp = preg_split('/(where|and)+/i', $where);
+			$temp = preg_split('/(where|and)/i', $where);
 			$where = array_filter($temp);
 
 			foreach ($where as $wValue) {
@@ -637,10 +637,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		foreach ($params as $bindKey => $bindValue) {
 			$paramWhere[] = $bindKey . '=?';
 		}
-		
-		$where = 'WHERE ' . implode(' AND ' , $paramWhere);
-		
-		$sql = "UPDATE $table SET $column=? $where";
+
+		$sql = "UPDATE $table SET $column=? WHERE "
+			. implode(' AND ', $paramWhere);
 
 		// Prepare the statement
 		$stmt = $this->_connectionID->prepare($sql);
@@ -651,7 +650,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		// Build as many keys as available
 		$bindIndex = 2;
 		foreach ($params as $bindKey => $bindValue) {
-			if (is_integer($v) || is_bool($v) || is_float($v)) {
+			if (is_integer($bindValue) || is_bool($bindValue) || is_float($bindValue)) {
 				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_NUM);
 			} elseif (is_object($bindValue)) {
 				// Assume a blob, this should never appear in
